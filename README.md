@@ -96,7 +96,9 @@ It is set up to deploy to either host (or both, from the same `main`).
 
 1. Push this repository to GitHub.
 2. In [Vercel](https://vercel.com/new), import the repository.
-3. Keep the defaults (Framework preset: **Next.js**, build command `next build`).
+3. Keep the defaults — `vercel.json` pins the framework preset and build command, so the
+   project builds correctly even if it was first imported before the app existed (in which case
+   Vercel would have detected no framework and served the repo as static files, giving a 404).
 4. Deploy.
 
 Any push to the default branch redeploys.
