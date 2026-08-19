@@ -14,6 +14,7 @@ import {
   savePreferences,
   type Preferences,
 } from "./storage";
+import { playCue, unlockAudio, type Cue } from "./audio";
 
 interface GameContextValue {
   state: GameState;
@@ -23,6 +24,8 @@ interface GameContextValue {
   resetEverything: () => void;
   /** Short haptic tick — no-op where unsupported or switched off. */
   buzz: (pattern?: number | number[]) => void;
+  /** Sound cue — no-op where unsupported or switched off. */
+  play: (cue: Cue) => void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -80,9 +83,26 @@ export function GameProvider({ children }: { children: ReactNode }) {
     [haptics],
   );
 
+  const sound = preferences.sound;
+  const play = useCallback(
+    (cue: Cue) => {
+      if (!sound) return;
+      playCue(cue);
+    },
+    [sound],
+  );
+
+  // Audio can only start inside a user gesture, so arm it on the first tap.
+  useEffect(() => {
+    if (!sound) return;
+    const arm = () => unlockAudio();
+    window.addEventListener("pointerdown", arm, { once: true });
+    return () => window.removeEventListener("pointerdown", arm);
+  }, [sound]);
+
   const value = useMemo<GameContextValue>(
-    () => ({ state, dispatch, preferences, setPreferences, resetEverything, buzz }),
-    [state, preferences, setPreferences, resetEverything, buzz],
+    () => ({ state, dispatch, preferences, setPreferences, resetEverything, buzz, play }),
+    [state, preferences, setPreferences, resetEverything, buzz, play],
   );
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

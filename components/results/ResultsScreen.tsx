@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Home, RotateCw, Settings2, VenetianMask } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -54,7 +54,7 @@ function outcomeCopy(outcome: Outcome, caught: number, total: number) {
 }
 
 export default function ResultsScreen() {
-  const { state, dispatch, buzz } = useGame();
+  const { state, dispatch, buzz, play } = useGame();
   const reduce = useReducedMotion();
   const [stage, setStage] = useState<Stage>(reduce ? "full" : "suspense");
   const round = state.round;
@@ -70,8 +70,15 @@ export default function ResultsScreen() {
     };
   }, [reduce]);
 
+  // The suspense rumble starts with the screen; the verdict sting lands with
+  // the imposter's name.
   useEffect(() => {
-    if (stage === "imposter") buzz([20, 50, 20, 50, 40]);
+    if (stage === "suspense") play("suspense");
+  }, [stage, play]);
+
+  useEffect(() => {
+    if (stage !== "imposter") return;
+    buzz([20, 50, 20, 50, 40]);
   }, [stage, buzz]);
 
   if (!round || !result) return null;
@@ -88,8 +95,9 @@ export default function ResultsScreen() {
     <Screen screenKey="results">
       <div className="relative flex min-h-0 flex-1 flex-col">
         <Confetti active={stage !== "suspense" && result.outcome === "civilians"} />
+        <VerdictSound stage={stage} outcome={result.outcome} play={play} />
 
-        <div className="scroll-area -mx-1 px-1">
+        <div className="scroll-area scroll-fade -mx-1 px-1">
           <div className="flex min-h-full flex-col justify-center gap-4 py-2">
             <AnimatePresence mode="wait">
               {stage === "suspense" ? (
@@ -132,7 +140,7 @@ export default function ResultsScreen() {
                   className="space-y-4"
                 >
                   {/* --- the imposters ------------------------------------ */}
-                  <div className="glass glass-strong overflow-hidden px-5 py-6 text-center">
+                  <div className="glass glass-strong glass-hero overflow-hidden px-5 py-6 text-center">
                     <p className="eyebrow mb-4">
                       {plural ? "The imposters were" : "The imposter was"}
                     </p>
@@ -194,7 +202,7 @@ export default function ResultsScreen() {
                         </div>
 
                         {/* --- the word ----------------------------------- */}
-                        <div className="glass px-5 py-5 text-center">
+                        <div className="glass glass-hero px-5 py-5 text-center">
                           <p className="eyebrow mb-2">The secret word</p>
                           <WordDisplay text={round.secretWord} />
 
@@ -328,4 +336,23 @@ export default function ResultsScreen() {
       </div>
     </Screen>
   );
+}
+
+/** Plays the win/lose sting exactly once, when the verdict appears. */
+function VerdictSound({
+  stage,
+  outcome,
+  play,
+}: {
+  stage: Stage;
+  outcome: Outcome;
+  play: (cue: "civiliansWin" | "impostersWin") => void;
+}) {
+  const played = useRef(false);
+  useEffect(() => {
+    if (stage !== "full" || played.current) return;
+    played.current = true;
+    play(outcome === "civilians" ? "civiliansWin" : "impostersWin");
+  }, [stage, outcome, play]);
+  return null;
 }

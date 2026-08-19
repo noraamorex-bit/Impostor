@@ -215,6 +215,30 @@ describe("mode changes", () => {
   });
 });
 
+describe("preferences", () => {
+  it("defaults sound, haptics and keep-awake on, and name-saving off", () => {
+    expect(INITIAL_STATE.preferences).toEqual({
+      rememberNames: false,
+      haptics: true,
+      sound: true,
+      keepAwake: true,
+    });
+  });
+
+  it("patches one preference without disturbing the rest", () => {
+    const state = gameReducer(INITIAL_STATE, { type: "set-preferences", patch: { sound: false } });
+    expect(state.preferences.sound).toBe(false);
+    expect(state.preferences.haptics).toBe(true);
+    expect(state.preferences.keepAwake).toBe(true);
+  });
+
+  it("keeps preferences through a hydrate that does not mention them", () => {
+    let state = gameReducer(INITIAL_STATE, { type: "set-preferences", patch: { sound: false } });
+    state = gameReducer(state, { type: "hydrate", config: {} });
+    expect(state.preferences.sound).toBe(false);
+  });
+});
+
 describe("hydration", () => {
   it("falls back to Classic when storage holds a mode that no longer exists", () => {
     const state = gameReducer(INITIAL_STATE, {

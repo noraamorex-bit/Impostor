@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { BookOpen, Play, Settings2 } from "lucide-react";
+import { BookOpen, Play, Settings2, Zap } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Logo from "@/components/ui/Logo";
 import Screen from "@/components/ui/Screen";
@@ -10,8 +10,10 @@ import { GAME_MODES } from "@/lib/game/modes";
 import { TOTAL_PAIR_COUNT, TOTAL_WORD_COUNT } from "@/lib/words";
 
 export default function HomeScreen() {
-  const { dispatch, buzz } = useGame();
+  const { state, dispatch, buzz, play } = useGame();
   const reduce = useReducedMotion();
+  const { config } = state;
+  const modeName = GAME_MODES.find((mode) => mode.id === config.mode)?.name ?? "Classic";
 
   const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: reduce ? 0 : 20 },
@@ -66,6 +68,21 @@ export default function HomeScreen() {
           >
             Play
           </Button>
+          {/* Straight back into a round with the same settings — the fastest
+              path for a group that is already mid-session. */}
+          <button
+            type="button"
+            onClick={() => {
+              buzz([12, 40, 18]);
+              play("start");
+              dispatch({ type: "start-round" });
+            }}
+            className="glass flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-[0.8rem] text-ink-200 transition active:scale-[0.98]"
+          >
+            <Zap size={14} strokeWidth={2.3} className="text-violet-soft" />
+            Quick start · {config.names.length} players · {modeName}
+          </button>
+
           <div className="flex gap-3">
             <Button
               block

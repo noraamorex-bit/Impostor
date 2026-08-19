@@ -11,7 +11,7 @@ import WordDisplay from "@/components/ui/WordDisplay";
 
 /** Privacy buffer for secret voting — mirrors the reveal pass screen. */
 export default function VotePassScreen() {
-  const { state, dispatch, buzz } = useGame();
+  const { state, dispatch, buzz, play } = useGame();
   const reduce = useReducedMotion();
   const voter = currentVoter(state);
   const total = state.round?.players.length ?? 0;
@@ -54,6 +54,7 @@ export default function VotePassScreen() {
           iconRight={<ArrowRight size={20} strokeWidth={2.4} />}
           onClick={() => {
             buzz(10);
+            play("select");
             dispatch({ type: "voter-ready" });
           }}
         >

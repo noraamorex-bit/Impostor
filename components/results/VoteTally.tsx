@@ -28,8 +28,8 @@ export default function VoteTally({ players, result, imposterIds }: VoteTallyPro
               className="absolute inset-y-0 left-0 rounded-2xl"
               style={{
                 background: isImposter
-                  ? "linear-gradient(90deg, rgba(255,138,107,0.34), rgba(255,138,107,0.10))"
-                  : "linear-gradient(90deg, rgba(139,124,255,0.28), rgba(139,124,255,0.06))",
+                  ? "linear-gradient(90deg, rgba(255,138,107,0.38), rgba(255,138,107,0.10))"
+                  : "linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04))",
               }}
               initial={{ width: 0 }}
               animate={{ width: `${Math.max(share * 100, entry.votes ? 14 : 0)}%` }}

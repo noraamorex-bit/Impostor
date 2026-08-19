@@ -11,7 +11,7 @@ import { votableFor } from "@/lib/game/engine";
 import { avatarGradient, initials } from "@/lib/game/helpers";
 
 export default function VoteScreen() {
-  const { state, dispatch, buzz } = useGame();
+  const { state, dispatch, buzz, play } = useGame();
   const reduce = useReducedMotion();
   // The ballot is tied to a voter, so handing the phone on always starts blank.
   const [ballot, setBallot] = useState<{ voterId: string; selected: string | null }>({
@@ -27,6 +27,7 @@ export default function VoteScreen() {
 
   const submit = (targetId: string | null) => {
     buzz(targetId ? [12, 30, 12] : 8);
+    play("vote");
     dispatch({ type: "cast-vote", targetId });
   };
 
@@ -41,6 +42,23 @@ export default function VoteScreen() {
           Vote {voter.index + 1} of {round.players.length}
           {state.config.privateVoting ? "" : " · say it out loud, then tap"}
         </p>
+        <div className="flex justify-center gap-1.5 pt-1" aria-hidden="true">
+          {round.players.map((player, index) => (
+            <span
+              key={player.id}
+              className="h-1.5 rounded-full transition-all duration-300"
+              style={{
+                width: index === voter.index ? 20 : 6,
+                background:
+                  index < voter.index
+                    ? "rgb(var(--accent) / 0.85)"
+                    : index === voter.index
+                      ? "#fff"
+                      : "rgba(255,255,255,0.18)",
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Centre the ballot only when it cannot overflow — a centred flex column
@@ -65,15 +83,16 @@ export default function VoteScreen() {
                   aria-pressed={isSelected}
                   onClick={() => {
                     buzz(8);
+                    play("select");
                     setBallot({ voterId: voter.id, selected: isSelected ? null : player.id });
                   }}
                   className="glass relative flex h-full w-full flex-col items-center gap-2.5 overflow-hidden rounded-[22px] px-3 py-5 text-center transition active:scale-[0.97]"
                   style={
                     isSelected
                       ? {
-                          borderColor: "rgba(179,168,255,0.7)",
-                          background: "rgba(139,124,255,0.16)",
-                          boxShadow: "0 18px 44px -22px rgba(139,124,255,0.95)",
+                          borderColor: "rgb(var(--accent-soft) / 0.7)",
+                          background: "rgb(var(--accent) / 0.16)",
+                          boxShadow: "0 18px 44px -22px rgb(var(--accent) / 0.95)",
                         }
                       : undefined
                   }
@@ -92,7 +111,10 @@ export default function VoteScreen() {
                     <motion.span
                       layoutId={reduce ? undefined : `vote-tick-${voter.id}`}
                       className="absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full"
-                      style={{ background: "linear-gradient(135deg,#B3A8FF,#8B7CFF)" }}
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgb(var(--accent-soft)), rgb(var(--accent)))",
+                      }}
                     >
                       <Check size={14} strokeWidth={3} className="text-black/80" />
                     </motion.span>

@@ -65,7 +65,7 @@ export default function SetupScreen() {
         variants={listVariants}
         initial="hidden"
         animate="show"
-        className="scroll-area space-y-3 pb-4"
+        className="scroll-area scroll-fade space-y-3 pb-4"
       >
         <SectionCard title="Players" hint={`${playerCount} playing`}>
           <PlayerEditor
