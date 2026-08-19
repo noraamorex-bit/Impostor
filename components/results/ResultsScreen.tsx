@@ -10,27 +10,46 @@ import VoteTally from "./VoteTally";
 import { useGame } from "@/lib/game/GameProvider";
 import { avatarGradient, initials, listNames } from "@/lib/game/helpers";
 import { getMode } from "@/lib/game/modes";
+import type { Outcome } from "@/types";
 import WordDisplay from "@/components/ui/WordDisplay";
 
 type Stage = "suspense" | "imposter" | "full";
 
-const OUTCOME_COPY = {
-  civilians: {
-    title: "Civilians win",
-    body: "The table pointed at the right person.",
-    accent: "#4FE3B0",
-  },
-  imposters: {
-    title: "Imposter wins",
-    body: "Nobody caught them. Ice cold.",
-    accent: "#FF8A6B",
-  },
-  split: {
-    title: "Split vote",
-    body: "The table couldn't agree — the imposter slips away with the doubt.",
-    accent: "#FFC46B",
-  },
-} as const;
+const OUTCOME_ACCENT: Record<Outcome, string> = {
+  civilians: "#4FE3B0",
+  imposters: "#FF8A6B",
+  split: "#FFC46B",
+};
+
+/** Copy that knows how many imposters there were and how many got caught. */
+function outcomeCopy(outcome: Outcome, caught: number, total: number) {
+  const many = total > 1;
+  switch (outcome) {
+    case "civilians":
+      return {
+        title: "Civilians win",
+        body:
+          caught === total
+            ? many
+              ? "Every imposter was caught. Flawless."
+              : "The table pointed at the right person."
+            : "One imposter went down — the rest are still out there.",
+      };
+    case "imposters":
+      return {
+        title: many ? "Imposters win" : "Imposter wins",
+        body: "Nobody caught them. Ice cold.",
+      };
+    case "split":
+    default:
+      return {
+        title: "Split vote",
+        body: `The table couldn't agree — ${
+          many ? "the imposters slip" : "the imposter slips"
+        } away with the doubt.`,
+      };
+  }
+}
 
 export default function ResultsScreen() {
   const { state, dispatch, buzz } = useGame();
@@ -57,8 +76,9 @@ export default function ResultsScreen() {
 
   const mode = getMode(round.mode);
   const imposters = round.players.filter((player) => round.imposterIds.includes(player.id));
-  const outcome = OUTCOME_COPY[result.outcome];
   const plural = imposters.length > 1;
+  const outcome = outcomeCopy(result.outcome, result.caughtImposterIds.length, imposters.length);
+  const accent = OUTCOME_ACCENT[result.outcome];
 
   return (
     <Screen screenKey="results">
@@ -156,13 +176,13 @@ export default function ResultsScreen() {
                         <div
                           className="rounded-[22px] border px-5 py-4 text-center"
                           style={{
-                            background: `linear-gradient(135deg, ${outcome.accent}26, ${outcome.accent}0d)`,
-                            borderColor: `${outcome.accent}55`,
+                            background: `linear-gradient(135deg, ${accent}26, ${accent}0d)`,
+                            borderColor: `${accent}55`,
                           }}
                         >
                           <h2
                             className="font-display text-2xl font-extrabold uppercase tracking-[0.06em]"
-                            style={{ color: outcome.accent }}
+                            style={{ color: accent }}
                           >
                             {outcome.title}
                           </h2>
@@ -184,7 +204,7 @@ export default function ResultsScreen() {
                           {round.mode === "unknown" && round.imposterWord ? (
                             <p className="mt-4 text-[0.85rem] leading-relaxed text-ink-300">
                               <span className="text-ink-400">
-                                {plural ? "They" : "They"} saw:{" "}
+                                {plural ? "They all saw" : "They saw"}:{" "}
                               </span>
                               <span className="font-display font-bold text-coral-soft">
                                 {round.imposterWord}
@@ -194,7 +214,7 @@ export default function ResultsScreen() {
 
                           {round.mode === "knowing" ? (
                             <p className="mt-4 text-[0.85rem] text-ink-400">
-                              {plural ? "Both imposters" : "The imposter"} knew the word all along.
+                              {plural ? "The imposters" : "The imposter"} knew the word all along.
                             </p>
                           ) : null}
                         </div>

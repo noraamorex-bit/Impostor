@@ -43,7 +43,13 @@ export default function VoteScreen() {
         </p>
       </div>
 
-      <div className="scroll-area -mx-1 flex flex-col justify-center px-1">
+      {/* Centre the ballot only when it cannot overflow — a centred flex column
+          that overflows would push the first cards under the header. */}
+      <div
+        className={`scroll-area -mx-1 px-1 ${
+          candidates.length <= 4 ? "flex flex-col justify-center" : ""
+        }`}
+      >
         <ul className="grid grid-cols-2 gap-2.5 py-2">
           {candidates.map((player, index) => {
             const isSelected = selected === player.id;
