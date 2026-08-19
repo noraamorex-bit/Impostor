@@ -1,0 +1,36 @@
+import type { WordSeed } from "@/types";
+
+const weather: WordSeed[] = [
+  ["Rain", "Falls from the sky and ruins plans"],
+  ["Snow", "White, cold, and closes schools"],
+  ["Thunder", "The loud part that comes after the flash"],
+  ["Lightning", "A bright crack across the sky"],
+  ["Storm", "Wind, water, and everyone stays inside"],
+  ["Wind", "You can't see it but your hair knows"],
+  ["Hail", "Ice falling and hitting the car roof"],
+  ["Sunshine", "Bright, warm, and everyone goes outside"],
+  ["Heatwave", "Too hot to sleep for days"],
+  ["Drought", "It hasn't rained in far too long"],
+  ["Flood", "Too much water in the wrong places"],
+  ["Hurricane", "A spinning storm with a name"],
+  ["Tornado", "A spinning funnel that lifts things"],
+  ["Blizzard", "Snow and wind together, can't see a thing"],
+  ["Frost", "White crust on the grass in the morning"],
+  ["Ice", "Slippery and forms when it's cold"],
+  ["Humidity", "The air feels thick and sticky"],
+  ["Breeze", "Gentle and welcome on a hot day"],
+  ["Drizzle", "Not quite rain but you still get wet"],
+  ["Puddle", "Left behind and jumped in by children"],
+  ["Umbrella", "Opens up and turns inside out in the wind"],
+  ["Raincoat", "Keeps you dry from the shoulders down"],
+  ["Weather Forecast", "Someone on TV points at a map"],
+  ["Temperature", "Measured in degrees and argued about"],
+  ["Cloudy Day", "Grey from morning to night"],
+  ["Sunny Day", "Everyone suddenly plans a barbecue"],
+  ["Monsoon", "A season of heavy predictable rain"],
+  ["Sandstorm", "A wall of dust rolling across the desert"],
+  ["Sleet", "Rain and snow arguing about which to be"],
+  ["Rainy Season", "Months where you never leave without a coat"],
+];
+
+export default weather;
