@@ -87,17 +87,40 @@ npm run lint       # eslint
 
 Node 20+ is recommended.
 
-## Deploying to Vercel
+## Deploying
 
-The app is 100% static/client-side — there is no database, no API route and no environment
-variable to set.
+The app is 100% static/client-side — no database, no API route, no environment variable to set.
+It is set up to deploy to either host (or both, from the same `main`).
+
+### Vercel
 
 1. Push this repository to GitHub.
 2. In [Vercel](https://vercel.com/new), import the repository.
 3. Keep the defaults (Framework preset: **Next.js**, build command `next build`).
 4. Deploy.
 
-That's it. Any push to the default branch redeploys.
+Any push to the default branch redeploys.
+
+### GitHub Pages
+
+`.github/workflows/deploy-pages.yml` typechecks, lints, tests, builds a static export and
+publishes it on every push to `main`. One-time setup:
+
+**Settings → Pages → Build and deployment → Source: _GitHub Actions_.**
+
+Then push to `main` (or run the workflow manually from the Actions tab). The site lands at
+`https://<user>.github.io/<repo>/`.
+
+A project site is served from a sub-path, so that build sets a base path — otherwise every
+CSS/JS URL would 404. It is switched on by two environment variables that only the workflow
+sets, which is why the Vercel build (served from the root) is unaffected:
+
+```bash
+GITHUB_PAGES=true NEXT_PUBLIC_BASE_PATH=/Impostor npm run build   # → ./out
+```
+
+To check that export the way GitHub Pages serves it, host `out/` under the same sub-path
+rather than at the root — opening `out/index.html` directly will not load its assets.
 
 ## Project structure
 
