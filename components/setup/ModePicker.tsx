@@ -4,34 +4,42 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check } from "lucide-react";
 import type { GameModeId } from "@/types";
 import { GAME_MODES } from "@/lib/game/modes";
+import { modeSupportsPlayerCount } from "@/lib/game/engine";
 
 interface ModePickerProps {
   value: GameModeId;
   onChange: (mode: GameModeId) => void;
+  /** Used to grey out modes this table is too small for (Accomplices needs 4). */
+  playerCount: number;
 }
 
 const MODE_ACCENT: Record<GameModeId, string> = {
   classic: "rgba(139,124,255,0.9)",
   clue: "rgba(255,196,107,0.9)",
-  knowing: "rgba(255,138,107,0.9)",
-  unknown: "rgba(79,227,176,0.9)",
+  blindspot: "rgba(79,227,176,0.9)",
+  cipher: "rgba(107,184,255,0.9)",
+  unknown: "rgba(255,107,158,0.9)",
+  accomplices: "rgba(255,138,107,0.9)",
 };
 
-export default function ModePicker({ value, onChange }: ModePickerProps) {
+export default function ModePicker({ value, onChange, playerCount }: ModePickerProps) {
   const reduce = useReducedMotion();
 
   return (
     <div className="grid gap-2.5" role="radiogroup" aria-label="Game mode">
       {GAME_MODES.map((mode) => {
         const selected = mode.id === value;
+        const available = modeSupportsPlayerCount(mode.id, playerCount);
         return (
           <button
             key={mode.id}
             type="button"
             role="radio"
             aria-checked={selected}
+            disabled={!available}
+            title={available ? undefined : `Needs at least ${mode.minImposters * 2 + 1} players`}
             onClick={() => onChange(mode.id)}
-            className="relative overflow-hidden rounded-[22px] p-[1px] text-left transition active:scale-[0.985]"
+            className="relative overflow-hidden rounded-[22px] p-[1px] text-left transition active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-45 disabled:active:scale-100"
             style={{
               background: selected
                 ? `linear-gradient(135deg, ${MODE_ACCENT[mode.id]}, rgba(255,255,255,0.06))`
@@ -71,6 +79,11 @@ export default function ModePicker({ value, onChange }: ModePickerProps) {
               <span className="relative min-w-0 flex-1">
                 <span className="flex flex-wrap items-baseline gap-x-2">
                   <span className="font-display text-[1.0625rem] font-bold">{mode.name}</span>
+                  {!available ? (
+                    <span className="text-[0.7rem] uppercase tracking-[0.14em] text-ink-400">
+                      needs {mode.minImposters * 2 + 1}+ players
+                    </span>
+                  ) : null}
                   <span
                     className="text-[0.7rem] uppercase tracking-[0.14em]"
                     style={{ color: selected ? MODE_ACCENT[mode.id] : "rgba(154,160,189,0.9)" }}

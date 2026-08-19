@@ -98,6 +98,7 @@ export default function SetupScreen() {
 
         <SectionCard title="Game mode">
           <ModePicker
+            playerCount={playerCount}
             value={config.mode}
             onChange={(nextMode) => {
               buzz(10);

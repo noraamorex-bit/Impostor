@@ -12,7 +12,7 @@ import type {
   Word,
   WordPair,
 } from "@/types";
-import { findWord, getPairPool, getWordPool, normalizeWord } from "@/lib/words";
+import { CATEGORY_META, findWord, getPairPool, getWordPool, normalizeWord } from "@/lib/words";
 import { getMode } from "./modes";
 import { MAX_PLAYERS, MIN_PLAYERS, WORD_HISTORY_LIMIT } from "./constants";
 import { defaultRng, pickRandom, sample, type RNG } from "./rng";
@@ -44,10 +44,32 @@ export function maxImposters(playerCount: number): number {
   return Math.max(1, Math.min(playerCount - 2, Math.floor(playerCount / 3) + 1));
 }
 
-export function clampImposterCount(count: number, playerCount: number): number {
+export function clampImposterCount(
+  count: number,
+  playerCount: number,
+  mode?: GameModeId,
+): number {
   const max = maxImposters(playerCount);
-  if (!Number.isFinite(count)) return 1;
-  return Math.max(1, Math.min(max, Math.round(count)));
+  const min = Math.min(mode ? getMode(mode).minImposters : 1, max);
+  if (!Number.isFinite(count)) return min;
+  return Math.max(min, Math.min(max, Math.round(count)));
+}
+
+/** Whether a table of this size can play a mode at all (Accomplices needs 4). */
+export function modeSupportsPlayerCount(mode: GameModeId, playerCount: number): boolean {
+  return maxImposters(playerCount) >= getMode(mode).minImposters;
+}
+
+/** "Beach" → "B▪▪▪▪", "Fish and Chips" → "F▪▪▪ ▪▪▪ C▪▪▪▪▪" — cipher mode. */
+export function maskWord(word: string): string {
+  return word
+    .split(/\s+/)
+    .map((part) => part.slice(0, 1).toUpperCase() + "▪".repeat(Math.max(part.length - 1, 0)))
+    .join(" ");
+}
+
+export function letterCount(word: string): number {
+  return word.replace(/[^a-z]/gi, "").length;
 }
 
 /** Sensible default: 1 imposter up to 5 players, 2 from 9 upwards. */
@@ -110,14 +132,22 @@ export interface CreateRoundOptions {
   now?: number;
 }
 
+interface AssignmentContext {
+  mode: GameModeId;
+  secretWord: string;
+  clue: string;
+  category: CategoryId;
+  imposterWord?: string;
+}
+
 function buildAssignments(
   players: Player[],
   imposterIds: Set<string>,
-  mode: GameModeId,
-  secretWord: string,
-  clue: string,
-  imposterWord?: string,
+  context: AssignmentContext,
 ): Assignment[] {
+  const { mode, secretWord, clue, category, imposterWord } = context;
+  const categoryMeta = CATEGORY_META.find((entry) => entry.id === category);
+
   return players.map((player) => {
     const isImposter = imposterIds.has(player.id);
     if (!isImposter) {
@@ -126,11 +156,34 @@ function buildAssignments(
     switch (mode) {
       case "clue":
         return { playerId: player.id, isImposter: true, kind: "imposter-clue", clue };
-      case "knowing":
-        return { playerId: player.id, isImposter: true, kind: "imposter-word", word: secretWord };
+      case "blindspot":
+        return {
+          playerId: player.id,
+          isImposter: true,
+          kind: "imposter-category",
+          categoryLabel: categoryMeta?.label ?? "Anything",
+          categoryEmoji: categoryMeta?.emoji ?? "✦",
+        };
+      case "cipher":
+        return {
+          playerId: player.id,
+          isImposter: true,
+          kind: "imposter-mask",
+          mask: maskWord(secretWord),
+          maskLength: letterCount(secretWord),
+        };
       case "unknown":
         // Looks exactly like a civilian screen — that is the entire point.
         return { playerId: player.id, isImposter: true, kind: "word", word: imposterWord };
+      case "accomplices":
+        return {
+          playerId: player.id,
+          isImposter: true,
+          kind: "imposter",
+          allyNames: players
+            .filter((other) => other.id !== player.id && imposterIds.has(other.id))
+            .map((other) => other.name),
+        };
       case "classic":
       default:
         return { playerId: player.id, isImposter: true, kind: "imposter" };
@@ -151,7 +204,7 @@ export function createRound(config: GameConfig, options: CreateRoundOptions = {}
   }
 
   const mode = getMode(config.mode);
-  const imposterCount = clampImposterCount(config.imposterCount, players.length);
+  const imposterCount = clampImposterCount(config.imposterCount, players.length, config.mode);
   const imposters = sample(players, imposterCount, rng);
   const imposterIds = new Set(imposters.map((player) => player.id));
 
@@ -185,7 +238,13 @@ export function createRound(config: GameConfig, options: CreateRoundOptions = {}
     clue,
     category,
     imposterWord,
-    assignments: buildAssignments(players, imposterIds, config.mode, secretWord, clue, imposterWord),
+    assignments: buildAssignments(players, imposterIds, {
+      mode: config.mode,
+      secretWord,
+      clue,
+      category,
+      imposterWord,
+    }),
   };
 }
 

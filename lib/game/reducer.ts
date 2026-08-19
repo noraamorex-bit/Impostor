@@ -4,12 +4,14 @@ import {
   clampImposterCount,
   clampPlayerCount,
   createRound,
+  maxImposters,
   pushHistory,
   resizeNames,
   resolveRound,
   suggestedImposterCount,
 } from "./engine";
 import { DEFAULT_PLAYERS, DEFAULT_TIMER_SECONDS } from "./constants";
+import { DEFAULT_MODE, getMode, isGameModeId } from "./modes";
 import { DEFAULT_PREFERENCES, type Preferences } from "./storage";
 import type { RNG } from "./rng";
 
@@ -84,10 +86,15 @@ export type GameAction =
 function normalizeConfig(config: GameConfig): GameConfig {
   const count = clampPlayerCount(config.names.length);
   const names = resizeNames(config.names, count);
+  // A mode stored by an older version may no longer exist.
+  let mode = isGameModeId(config.mode) ? config.mode : DEFAULT_MODE;
+  // Accomplices needs two imposters, which needs four players.
+  if (getMode(mode).minImposters > maxImposters(count)) mode = DEFAULT_MODE;
   return {
     ...config,
+    mode,
     names,
-    imposterCount: clampImposterCount(config.imposterCount, count),
+    imposterCount: clampImposterCount(config.imposterCount, count, mode),
     categories: [...new Set(config.categories)],
   };
 }
@@ -142,14 +149,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "set-player-count": {
       const count = clampPlayerCount(action.count);
-      const names = resizeNames(state.config.names, count);
       return {
         ...state,
-        config: {
-          ...state.config,
-          names,
-          imposterCount: clampImposterCount(state.config.imposterCount, count),
-        },
+        config: normalizeConfig({ ...state.config, names: resizeNames(state.config.names, count) }),
       };
     }
 
