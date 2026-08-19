@@ -13,12 +13,13 @@ const RADIUS = 100;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function DiscussionScreen() {
-  const { state, dispatch, buzz } = useGame();
+  const { state, dispatch, buzz, play } = useGame();
   const reduce = useReducedMotion();
   const total = state.config.timerSeconds;
   const [remaining, setRemaining] = useState(total);
   const [running, setRunning] = useState(total > 0);
   const finishedRef = useRef(false);
+  const warnedRef = useRef(false);
 
   useEffect(() => {
     if (!running || total === 0) return;
@@ -39,11 +40,19 @@ export default function DiscussionScreen() {
       finishedRef.current = true;
       setRunning(false);
       buzz([30, 60, 30, 60, 60]);
+      play("timeUp");
     }
-  }, [remaining, total, buzz]);
+    // One warning as the last ten seconds start, so nobody is caught mid-sentence.
+    if (total > 10 && remaining === 10 && !warnedRef.current) {
+      warnedRef.current = true;
+      buzz(20);
+      play("timerWarning");
+    }
+  }, [remaining, total, buzz, play]);
 
   const reset = useCallback(() => {
     finishedRef.current = false;
+    warnedRef.current = false;
     setRemaining(total);
     setRunning(true);
   }, [total]);
@@ -54,6 +63,7 @@ export default function DiscussionScreen() {
   const starter = firstSpeaker(round);
   const progress = total > 0 ? remaining / total : 0;
   const timeUp = total > 0 && remaining === 0;
+  const urgent = total > 0 && remaining > 0 && remaining <= 10;
 
   return (
     <Screen screenKey="discussion">
@@ -64,12 +74,22 @@ export default function DiscussionScreen() {
         </div>
 
         {total > 0 ? (
-          <div className="relative" style={{ width: RING_SIZE, height: RING_SIZE }}>
+          <button
+            type="button"
+            aria-label={running ? "Pause the timer" : "Start the timer"}
+            onClick={() => {
+              buzz(8);
+              if (timeUp) reset();
+              else setRunning((value) => !value);
+            }}
+            className="relative rounded-full transition active:scale-[0.97]"
+            style={{ width: RING_SIZE, height: RING_SIZE }}
+          >
             <svg width={RING_SIZE} height={RING_SIZE} className="-rotate-90" aria-hidden="true">
               <defs>
                 <linearGradient id="timer-gradient" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor={timeUp ? "#FF8A6B" : "#B3A8FF"} />
-                  <stop offset="100%" stopColor={timeUp ? "#FF5F7A" : "#8B7CFF"} />
+                  <stop offset="0%" stopColor={timeUp || urgent ? "#FFB59E" : "#FFD89E"} />
+                  <stop offset="100%" stopColor={timeUp || urgent ? "#FF5F7A" : "#FFC46B"} />
                 </linearGradient>
               </defs>
               <circle
@@ -94,14 +114,19 @@ export default function DiscussionScreen() {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-display text-5xl font-bold tabular-nums tracking-tight">
+              <motion.span
+                className="font-display text-5xl font-bold tabular-nums tracking-tight"
+                animate={urgent && !reduce ? { scale: [1, 1.06, 1] } : { scale: 1 }}
+                transition={urgent ? { duration: 1, repeat: Infinity } : { duration: 0.2 }}
+                style={{ color: urgent || timeUp ? "#FFB59E" : undefined }}
+              >
                 {formatSeconds(remaining)}
-              </span>
+              </motion.span>
               <span className="mt-1 text-[0.72rem] uppercase tracking-[0.22em] text-ink-400">
                 {timeUp ? "Time's up" : running ? "Talking" : "Paused"}
               </span>
             </div>
-          </div>
+          </button>
         ) : (
           <div className="glass flex w-full max-w-xs flex-col items-center gap-2 px-6 py-8">
             <span className="font-display text-2xl font-bold">No timer</span>
@@ -149,6 +174,7 @@ export default function DiscussionScreen() {
           icon={<Vote size={19} strokeWidth={2.2} />}
           onClick={() => {
             buzz([14, 40, 14]);
+            play("start");
             dispatch({ type: "begin-voting" });
           }}
         >

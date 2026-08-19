@@ -57,10 +57,16 @@ later version fall back to Classic rather than breaking a stored setup.
 - **Dramatic results**: staged imposter reveal, the word, the clue or alternate word, full vote
   tally and the outcome (civilians win / imposter wins / split vote)
 - **Instant replay** that keeps every setup choice and never repeats the last 40 words
-- **Premium dark glassmorphism UI**, tuned for one-handed use on a phone and centred in a
-  game container on desktop
-- **Accessible**: semantic buttons, keyboard support, visible focus rings, 44px+ touch targets and
-  full `prefers-reduced-motion` support
+- **Premium dark glassmorphism UI** — translucent panels lit by a stage light behind the
+  content column, so the glass actually refracts something instead of sitting on flat black
+- **The palette follows the game**: calm violet while the phone goes round, warm amber during the
+  discussion, hot coral at the vote, and the verdict colour on the results screen
+- **Sound**, synthesised in the browser with the Web Audio API — no audio files in the bundle.
+  Every player's reveal cue is identical, so nothing leaks across the table
+- **Quick start** from the home screen, a **redeal** if someone glimpses the wrong card, and the
+  screen is held awake while a round is in progress
+- **Accessible**: semantic buttons, keyboard support, visible focus rings, 44px+ touch targets,
+  full `prefers-reduced-motion` support, and independent toggles for sound, haptics and wake lock
 - **Private by design**: no accounts, no backend, no analytics. Round secrets never touch storage.
 - **Installable**: ships a web manifest, so "Add to Home Screen" gives you a full-screen game
 
@@ -145,6 +151,8 @@ components/
   results/            # reveal, tally, confetti
   ui/                 # button, glass card, stepper, toggle, word display…
 lib/
+  hooks/              # wake lock
+lib/
   game/               # engine, reducer, modes, storage, helpers (no JSX)
   words/              # the word database, categories and related pairs
 types/                # Player, Round, GameMode, Word, WordPair, Vote, GamePhase…
@@ -177,7 +185,7 @@ intact, and the browser warns you before it happens.
 npm test
 ```
 
-66 tests covering every game mode, 3- and 12-player games, multiple imposters, name handling,
+71 tests covering every game mode, 3- and 12-player games, multiple imposters, name handling,
 category filtering, clue and related-word assignment, vote tallying, all three outcomes, the
 complete phase flow, replay, and the guarantee that a word is never repeated while it is still
 in the history.

@@ -12,7 +12,7 @@ import { getAssignment } from "@/lib/game/engine";
 import { avatarGradient, initials } from "@/lib/game/helpers";
 
 export default function RevealScreen() {
-  const { state, dispatch, buzz } = useGame();
+  const { state, dispatch, buzz, play } = useGame();
   const reduce = useReducedMotion();
   const [hiding, setHiding] = useState(false);
   const player = currentPlayer(state);
@@ -20,6 +20,7 @@ export default function RevealScreen() {
 
   const handleHide = useCallback(() => {
     buzz(8);
+    play("hide");
     // Curtain first, state second: the card is gone before the phone moves.
     setHiding(true);
     window.setTimeout(
@@ -29,10 +30,11 @@ export default function RevealScreen() {
       },
       reduce ? 60 : 260,
     );
-  }, [buzz, dispatch, reduce]);
+  }, [buzz, play, dispatch, reduce]);
 
   if (!player || !round) return null;
   const assignment = getAssignment(round, player.id);
+  const nextPlayer = round.players[player.index + 1] ?? null;
 
   return (
     <Screen screenKey={`reveal-${player.id}`}>
@@ -47,7 +49,7 @@ export default function RevealScreen() {
         <span className="eyebrow">{player.name}</span>
       </div>
 
-      <div className="relative flex flex-1 items-center justify-center py-4">
+      <div className="glow-bed relative flex flex-1 items-center justify-center py-4">
         <AnimatePresence mode="wait" initial={false}>
           {!state.revealed ? (
             <motion.button
@@ -55,20 +57,20 @@ export default function RevealScreen() {
               type="button"
               onClick={() => {
                 buzz([10, 30, 14]);
+                // Deliberately the same cue for every role — a different sting
+                // for the imposter would give the game away across the table.
+                play("reveal");
                 dispatch({ type: "reveal" });
               }}
               initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.06, filter: "blur(12px)" }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="glass glass-strong relative flex aspect-[3/4] w-full max-w-[19rem] flex-col items-center justify-center gap-5 overflow-hidden rounded-[32px] text-center transition active:scale-[0.98]"
+              className="glass glass-strong glass-hero relative z-[1] flex aspect-[3/4] w-full max-w-[19rem] flex-col items-center justify-center gap-5 overflow-hidden rounded-[32px] text-center transition active:scale-[0.98]"
               aria-label={`Reveal the secret for ${player.name}`}
             >
               {!reduce ? (
-                <span
-                  aria-hidden="true"
-                  className="shimmer pointer-events-none absolute inset-0 rounded-[32px]"
-                />
+                <span aria-hidden="true" className="sheen" />
               ) : null}
               <span
                 aria-hidden="true"
@@ -109,7 +111,7 @@ export default function RevealScreen() {
               }
               exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.94, filter: "blur(16px)" }}
               transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-              className="glass glass-strong flex aspect-[3/4] w-full max-w-[19rem] items-center justify-center overflow-hidden rounded-[32px] px-6"
+              className="glass glass-strong glass-hero relative z-[1] flex aspect-[3/4] w-full max-w-[19rem] items-center justify-center overflow-hidden rounded-[32px] px-6"
             >
               <SecretCard assignment={assignment} />
             </motion.div>
@@ -155,7 +157,7 @@ export default function RevealScreen() {
                 onClick={handleHide}
                 disabled={hiding}
               >
-                Hide &amp; pass
+                {nextPlayer ? `Hide & pass to ${nextPlayer.name}` : "Hide & finish"}
               </Button>
             </motion.div>
           ) : (

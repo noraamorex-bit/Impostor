@@ -15,7 +15,7 @@ import { avatarGradient, initials } from "@/lib/game/helpers";
  * next person looks at the phone.
  */
 export default function PassScreen() {
-  const { state, dispatch, buzz } = useGame();
+  const { state, dispatch, buzz, play } = useGame();
   const reduce = useReducedMotion();
   const player = currentPlayer(state);
   const total = state.round?.players.length ?? 0;
@@ -94,6 +94,7 @@ export default function PassScreen() {
           iconRight={<ArrowRight size={20} strokeWidth={2.4} />}
           onClick={() => {
             buzz(10);
+            play("select");
             dispatch({ type: "ready-to-reveal" });
           }}
         >

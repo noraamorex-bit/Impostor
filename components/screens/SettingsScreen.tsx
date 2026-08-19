@@ -12,7 +12,7 @@ import { useGame } from "@/lib/game/GameProvider";
 import { TOTAL_PAIR_COUNT, TOTAL_WORD_COUNT, CATEGORY_META } from "@/lib/words";
 
 export default function SettingsScreen() {
-  const { dispatch, state, preferences, setPreferences, resetEverything } = useGame();
+  const { dispatch, state, preferences, setPreferences, resetEverything, play } = useGame();
   const [confirmingReset, setConfirmingReset] = useState(false);
 
   return (
@@ -36,10 +36,27 @@ export default function SettingsScreen() {
             />
             <div className="hairline my-2" />
             <Toggle
+              label="Sound"
+              description="Short cues on reveals, votes and the verdict. Every player's reveal sounds the same."
+              checked={preferences.sound}
+              onChange={(sound) => {
+                setPreferences({ sound });
+                if (sound) play("reveal");
+              }}
+            />
+            <div className="hairline my-2" />
+            <Toggle
               label="Haptics"
               description="A short buzz on reveals, votes and the final result."
               checked={preferences.haptics}
               onChange={(haptics) => setPreferences({ haptics })}
+            />
+            <div className="hairline my-2" />
+            <Toggle
+              label="Keep screen awake"
+              description="Stops the phone locking itself while it goes around the table."
+              checked={preferences.keepAwake}
+              onChange={(keepAwake) => setPreferences({ keepAwake })}
             />
           </GlassCard>
         </motion.div>

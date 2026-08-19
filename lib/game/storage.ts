@@ -16,11 +16,16 @@ import { STORAGE_KEYS, WORD_HISTORY_LIMIT } from "./constants";
 export interface Preferences {
   rememberNames: boolean;
   haptics: boolean;
+  sound: boolean;
+  /** Hold the screen awake while a round is in progress. */
+  keepAwake: boolean;
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {
   rememberNames: false,
   haptics: true,
+  sound: true,
+  keepAwake: true,
 };
 
 const isBrowser = () => typeof window !== "undefined";

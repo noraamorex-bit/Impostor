@@ -47,9 +47,10 @@ export default function SecretCard({ assignment }: { assignment: Assignment }) {
         <span
           className="flex h-16 w-16 items-center justify-center rounded-3xl"
           style={{
-            background: "linear-gradient(135deg, rgba(255,181,158,0.35), rgba(255,138,107,0.18))",
-            border: "1px solid rgba(255,255,255,0.18)",
-            boxShadow: "0 20px 50px -22px rgba(255,138,107,0.9)",
+            background: "linear-gradient(135deg, rgba(255,181,158,0.4), rgba(255,138,107,0.2))",
+            border: "1px solid rgba(255,255,255,0.24)",
+            boxShadow:
+              "0 20px 50px -20px rgba(255,138,107,0.95), inset 0 1px 0 rgba(255,255,255,0.4)",
           }}
         >
           <VenetianMask size={30} strokeWidth={1.8} className="text-coral-soft" />

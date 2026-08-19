@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { CheckCircle2, MessagesSquare, SkipForward } from "lucide-react";
+import { CheckCircle2, MessagesSquare, RotateCw, SkipForward } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Screen from "@/components/ui/Screen";
 import { useGame } from "@/lib/game/GameProvider";
@@ -9,7 +9,7 @@ import { avatarGradient, initials } from "@/lib/game/helpers";
 
 /** "Everyone ready?" — the beat between the last reveal and the discussion. */
 export default function HandoffScreen() {
-  const { state, dispatch, buzz } = useGame();
+  const { state, dispatch, buzz, play } = useGame();
   const reduce = useReducedMotion();
   const round = state.round;
   if (!round) return null;
@@ -68,19 +68,37 @@ export default function HandoffScreen() {
           icon={<MessagesSquare size={19} strokeWidth={2.2} />}
           onClick={() => {
             buzz([12, 30, 12]);
+            play("start");
             dispatch({ type: "start-discussion" });
           }}
         >
           Start discussion
         </Button>
-        <Button
-          variant="ghost"
-          block
-          icon={<SkipForward size={16} strokeWidth={2.2} />}
-          onClick={() => dispatch({ type: "begin-voting" })}
-        >
-          Skip straight to voting
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            block
+            className="btn-compact"
+            icon={<SkipForward size={15} strokeWidth={2.2} />}
+            onClick={() => dispatch({ type: "begin-voting" })}
+          >
+            Skip to voting
+          </Button>
+          {/* Someone glanced at the wrong screen — deal a fresh word and roles
+              rather than playing out a round everybody knows is spoiled. */}
+          <Button
+            variant="ghost"
+            block
+            className="btn-compact"
+            icon={<RotateCw size={15} strokeWidth={2.2} />}
+            onClick={() => {
+              buzz(10);
+              dispatch({ type: "start-round" });
+            }}
+          >
+            Redeal round
+          </Button>
+        </div>
       </div>
     </Screen>
   );
