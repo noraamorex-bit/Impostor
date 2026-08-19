@@ -48,7 +48,7 @@ export interface WordPair {
 /* Modes                                                               */
 /* ------------------------------------------------------------------ */
 
-export type GameModeId = "classic" | "clue" | "knowing" | "unknown";
+export type GameModeId = "classic" | "clue" | "blindspot" | "cipher" | "unknown" | "accomplices";
 
 export interface GameMode {
   id: GameModeId;
@@ -61,6 +61,10 @@ export interface GameMode {
   imposterKnowsRole: boolean;
   /** Mode draws from the curated related-pair database instead of raw words. */
   usesPairs: boolean;
+  /** Imposters are shown who the other imposters are. */
+  impostersKnowEachOther: boolean;
+  /** Fewer imposters than this makes no sense for the mode. */
+  minImposters: number;
 }
 
 /* ------------------------------------------------------------------ */
@@ -97,7 +101,8 @@ export type RevealKind =
   | "word" // civilian (and unknown-mode imposter): just a word
   | "imposter" // "you are the imposter", no word
   | "imposter-clue" // "you are the imposter" + clue
-  | "imposter-word"; // "you are the imposter" + the real word
+  | "imposter-category" // "you are the imposter" + the word's category
+  | "imposter-mask"; // "you are the imposter" + the word with its letters hidden
 
 export interface Assignment {
   playerId: string;
@@ -107,6 +112,16 @@ export interface Assignment {
   word?: string;
   /** Clue shown to this player, if any. */
   clue?: string;
+  /** Category the word came from, as a label ("Food") — blind-spot mode. */
+  categoryLabel?: string;
+  /** Emoji for that category, so the card can carry it. */
+  categoryEmoji?: string;
+  /** The word with its letters hidden, e.g. "B▪▪▪▪" — cipher mode. */
+  mask?: string;
+  /** Letter count behind the mask, per word. */
+  maskLength?: number;
+  /** Names of the other imposters — accomplices mode only. */
+  allyNames?: string[];
 }
 
 export interface Round {

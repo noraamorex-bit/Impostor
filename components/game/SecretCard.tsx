@@ -59,13 +59,34 @@ export default function SecretCard({ assignment }: { assignment: Assignment }) {
         </h1>
       </motion.div>
 
-      {assignment.kind === "imposter" ? (
+      {assignment.kind === "imposter" && !assignment.allyNames?.length ? (
         <motion.p {...enter(0.24)} className="max-w-[17rem] text-[0.9rem] leading-relaxed text-ink-200">
           You don&apos;t have the word.
           <span className="mt-1 block text-ink-400">
             Listen hard, answer late, and blend in.
           </span>
         </motion.p>
+      ) : null}
+
+      {/* Accomplices: the one screen that names other players. */}
+      {assignment.allyNames?.length ? (
+        <motion.div {...enter(0.24)} className="w-full max-w-xs">
+          <p className="eyebrow mb-2">
+            {assignment.allyNames.length > 1 ? "Your accomplices" : "Your accomplice"}
+          </p>
+          <div
+            className="font-display rounded-[20px] border px-5 py-4 text-xl font-bold uppercase tracking-tight"
+            style={{
+              background: "rgba(255,138,107,0.12)",
+              borderColor: "rgba(255,138,107,0.32)",
+            }}
+          >
+            {assignment.allyNames.join(" · ")}
+          </div>
+          <p className="mt-3 text-[0.82rem] leading-relaxed text-ink-400">
+            Neither of you has the word. Cover for each other — or don&apos;t.
+          </p>
+        </motion.div>
       ) : null}
 
       {assignment.kind === "imposter-clue" && assignment.clue ? (
@@ -83,20 +104,45 @@ export default function SecretCard({ assignment }: { assignment: Assignment }) {
         </motion.div>
       ) : null}
 
-      {assignment.kind === "imposter-word" && assignment.word ? (
+      {assignment.kind === "imposter-category" && assignment.categoryLabel ? (
         <motion.div {...enter(0.24)} className="w-full max-w-xs">
-          <p className="eyebrow mb-2">Your word</p>
+          <p className="eyebrow mb-2">The word is somewhere in</p>
           <div
-            className="font-display rounded-[20px] border px-5 py-4 text-2xl font-bold uppercase tracking-tight"
+            className="flex items-center justify-center gap-3 rounded-[20px] border px-5 py-4"
+            style={{
+              background: "rgba(79,227,176,0.1)",
+              borderColor: "rgba(79,227,176,0.3)",
+            }}
+          >
+            <span className="text-2xl" aria-hidden="true">
+              {assignment.categoryEmoji}
+            </span>
+            <span className="font-display text-xl font-bold uppercase tracking-tight">
+              {assignment.categoryLabel}
+            </span>
+          </div>
+          <p className="mt-3 text-[0.82rem] leading-relaxed text-ink-400">
+            That is the whole shelf. Good luck finding the book.
+          </p>
+        </motion.div>
+      ) : null}
+
+      {assignment.kind === "imposter-mask" && assignment.mask ? (
+        <motion.div {...enter(0.24)} className="w-full max-w-xs">
+          <p className="eyebrow mb-2">The word looks like</p>
+          <div
+            className="rounded-[20px] border px-5 py-4"
             style={{
               background: "rgba(139,124,255,0.12)",
               borderColor: "rgba(139,124,255,0.32)",
             }}
           >
-            {assignment.word}
+            <span className="font-display block break-words text-2xl font-bold uppercase tracking-[0.12em]">
+              {assignment.mask}
+            </span>
           </div>
           <p className="mt-3 text-[0.82rem] leading-relaxed text-ink-400">
-            You know everything. Now act like you earned it.
+            {assignment.maskLength} letters. That is everything you get.
           </p>
         </motion.div>
       ) : null}

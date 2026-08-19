@@ -78,7 +78,7 @@ describe("setup actions", () => {
 });
 
 describe("full game flow", () => {
-  const modes: GameModeId[] = ["classic", "clue", "knowing", "unknown"];
+  const modes: GameModeId[] = ["classic", "clue", "blindspot", "cipher", "unknown", "accomplices"];
 
   it.each(modes)("plays a complete round in %s mode", (mode) => {
     let state = setup(["Maya", "Arjun", "Sarah", "Noah", "Alex"], { mode });
@@ -196,7 +196,35 @@ describe("replay", () => {
   });
 });
 
+describe("mode changes", () => {
+  it("raises the imposter count when switching to Accomplices, and keeps it on the way back", () => {
+    let state = gameReducer(INITIAL_STATE, { type: "set-player-count", count: 6 });
+    expect(state.config.imposterCount).toBe(1);
+    state = gameReducer(state, { type: "update-config", patch: { mode: "accomplices" } });
+    expect(state.config.imposterCount).toBe(2);
+    state = gameReducer(state, { type: "update-config", patch: { mode: "classic" } });
+    expect(state.config.imposterCount).toBe(2);
+  });
+
+  it("drops Accomplices when the table shrinks below four players", () => {
+    let state = gameReducer(INITIAL_STATE, { type: "set-player-count", count: 6 });
+    state = gameReducer(state, { type: "update-config", patch: { mode: "accomplices" } });
+    state = gameReducer(state, { type: "set-player-count", count: 3 });
+    expect(state.config.mode).toBe("classic");
+    expect(state.config.imposterCount).toBe(1);
+  });
+});
+
 describe("hydration", () => {
+  it("falls back to Classic when storage holds a mode that no longer exists", () => {
+    const state = gameReducer(INITIAL_STATE, {
+      type: "hydrate",
+      // "knowing" shipped in an earlier version and was removed.
+      config: { mode: "knowing" as never, names: ["A", "B", "C", "D"] },
+    });
+    expect(state.config.mode).toBe("classic");
+  });
+
   it("merges stored config and clamps it", () => {
     const state = gameReducer(INITIAL_STATE, {
       type: "hydrate",

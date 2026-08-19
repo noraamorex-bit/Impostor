@@ -32,14 +32,19 @@ Home → Setup → Pass → Reveal → … → Discussion → Voting → Results
 | --- | --- | --- |
 | **Classic** | "You are the imposter." Nothing else. | Pure bluffing — they have no idea what the word is. |
 | **With a Clue** | "You are the imposter" + a short clue about the word. | Just enough rope to blend in, or to hang themselves. |
-| **Knowing Imposter** | "You are the imposter" + the real word. | They know everything. Can they act like they belong? |
+| **Blind Spot** | The category the word came from, e.g. 🍔 Food. | They know the shelf but not the book — plausible for one round, rarely two. |
+| **Cipher** | The word with its letters hidden: `B▪▪▪▪`, 5 letters. | A first letter is a real lead and a real trap. |
 | **Unknown Imposter** | A *different but related* word (Beach → Pool). | Their screen looks exactly like everyone else's. They don't know they're the imposter. |
+| **Accomplices** | "You are the imposter" + the names of the other imposters. | Two or more liars who can cover for each other — or throw each other under the bus. Needs 4+ players. |
 
 The mode system is data-driven (`lib/game/modes.ts` + a `switch` in the engine), so adding a
-fifth mode means adding one entry and one branch.
+seventh mode means adding one entry and one branch. A mode can declare a minimum imposter count
+(`minImposters`), which the setup screen and the engine both enforce, and modes removed in a
+later version fall back to Classic rather than breaking a stored setup.
 
 ## Features
 
+- **Six game modes**, from pure-bluff Classic to two-imposter Accomplices
 - **1,500+ hand-written words** across 34 categories, every one with a clue for "With a Clue" mode
 - **700+ curated related pairs** for Unknown Imposter mode, tagged by category and difficulty
 - **3–12 players** with fully editable names (blank names fall back to `Player N`)
@@ -172,7 +177,7 @@ intact, and the browser warns you before it happens.
 npm test
 ```
 
-52 tests covering every game mode, 3- and 12-player games, multiple imposters, name handling,
+66 tests covering every game mode, 3- and 12-player games, multiple imposters, name handling,
 category filtering, clue and related-word assignment, vote tallying, all three outcomes, the
 complete phase flow, replay, and the guarantee that a word is never repeated while it is still
 in the history.

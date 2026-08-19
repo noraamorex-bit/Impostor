@@ -5,7 +5,10 @@ import {
   clampPlayerCount,
   createRound,
   getAssignment,
+  letterCount,
+  maskWord,
   maxImposters,
+  modeSupportsPlayerCount,
   pickWord,
   pushHistory,
   resolveRound,
@@ -14,7 +17,7 @@ import {
   votableFor,
 } from "@/lib/game/engine";
 import { seededRng } from "@/lib/game/rng";
-import { getWordPool, findWord, normalizeWord } from "@/lib/words";
+import { CATEGORY_META, getWordPool, findWord, normalizeWord } from "@/lib/words";
 import { WORD_PAIRS } from "@/lib/words/pairs";
 import { WORD_HISTORY_LIMIT } from "@/lib/game/constants";
 import type { GameConfig, GameModeId, Vote } from "@/types";
@@ -95,7 +98,7 @@ describe("createRound", () => {
     }
   });
 
-  const modes: GameModeId[] = ["classic", "clue", "knowing", "unknown"];
+  const modes: GameModeId[] = ["classic", "clue", "blindspot", "cipher", "unknown", "accomplices"];
 
   it.each(modes)("assigns correct information in %s mode", (mode) => {
     const round = createRound(config({ mode, imposterCount: 2, names: ["A", "B", "C", "D", "E", "F"] }), {
@@ -120,9 +123,31 @@ describe("createRound", () => {
         expect(imposters.every((a) => a.clue === round.clue && a.clue!.length > 0)).toBe(true);
         expect(imposters.every((a) => !a.word)).toBe(true);
         break;
-      case "knowing":
-        expect(imposters.every((a) => a.kind === "imposter-word")).toBe(true);
-        expect(imposters.every((a) => a.word === round.secretWord)).toBe(true);
+      case "blindspot":
+        expect(imposters.every((a) => a.kind === "imposter-category")).toBe(true);
+        // The category label, never the word or its clue.
+        expect(imposters.every((a) => !a.word && !a.clue)).toBe(true);
+        expect(imposters.every((a) => (a.categoryLabel ?? "").length > 0)).toBe(true);
+        expect(imposters.every((a) => (a.categoryEmoji ?? "").length > 0)).toBe(true);
+        break;
+      case "cipher":
+        expect(imposters.every((a) => a.kind === "imposter-mask")).toBe(true);
+        expect(imposters.every((a) => !a.word && !a.clue)).toBe(true);
+        expect(imposters.every((a) => a.mask === maskWord(round.secretWord))).toBe(true);
+        expect(imposters.every((a) => a.maskLength === letterCount(round.secretWord))).toBe(true);
+        break;
+      case "accomplices":
+        expect(imposters.every((a) => a.kind === "imposter")).toBe(true);
+        expect(imposters.every((a) => !a.word && !a.clue)).toBe(true);
+        // Each imposter is told about the others, and never about themselves.
+        for (const assignment of imposters) {
+          const self = round.players.find((p) => p.id === assignment.playerId)!;
+          const others = round.players
+            .filter((p) => round.imposterIds.includes(p.id) && p.id !== self.id)
+            .map((p) => p.name);
+          expect(assignment.allyNames).toEqual(others);
+          expect(assignment.allyNames).not.toContain(self.name);
+        }
         break;
       case "unknown":
         // Screen must be indistinguishable from a civilian's.
@@ -315,5 +340,70 @@ describe("outcomes", () => {
     expect(result.outcome).toBe("civilians");
     expect(result.caughtImposterIds).toEqual([a]);
     expect(result.escapedImposterIds).toEqual([b]);
+  });
+});
+
+describe("mode requirements", () => {
+  it("keeps Accomplices off tables that cannot field two imposters", () => {
+    expect(modeSupportsPlayerCount("accomplices", 3)).toBe(false);
+    expect(modeSupportsPlayerCount("accomplices", 4)).toBe(true);
+    expect(modeSupportsPlayerCount("classic", 3)).toBe(true);
+  });
+
+  it("raises the imposter count to the mode's minimum", () => {
+    expect(clampImposterCount(1, 6, "accomplices")).toBe(2);
+    expect(clampImposterCount(1, 6, "classic")).toBe(1);
+    expect(clampImposterCount(9, 6, "accomplices")).toBe(maxImposters(6));
+  });
+
+  it("always deals at least two imposters in Accomplices", () => {
+    for (let seed = 1; seed <= 20; seed += 1) {
+      const round = createRound(
+        config({ mode: "accomplices", imposterCount: 1, names: ["A", "B", "C", "D", "E"] }),
+        { rng: seededRng(seed) },
+      );
+      expect(round.imposterIds.length).toBeGreaterThanOrEqual(2);
+    }
+  });
+});
+
+describe("cipher masking", () => {
+  it("keeps the first letter of each word and hides the rest", () => {
+    expect(maskWord("Beach")).toBe("B▪▪▪▪");
+    expect(maskWord("Fish and Chips")).toBe("F▪▪▪ A▪▪ C▪▪▪▪");
+    expect(maskWord("A")).toBe("A");
+  });
+
+  it("counts only letters", () => {
+    expect(letterCount("Beach")).toBe(5);
+    expect(letterCount("Fish and Chips")).toBe(12);
+    expect(letterCount("Mac and Cheese")).toBe(12);
+  });
+
+  it("never leaks a letter beyond the first of each word", () => {
+    for (let seed = 1; seed <= 40; seed += 1) {
+      const round = createRound(config({ mode: "cipher" }), { rng: seededRng(seed) });
+      const mask = round.assignments.find((a) => a.isImposter)!.mask!;
+      const maskedLetters = mask.replace(/[^A-Z]/g, "");
+      const initials = round.secretWord
+        .split(/\s+/)
+        .map((part) => part[0].toUpperCase())
+        .join("");
+      expect(maskedLetters).toBe(initials);
+    }
+  });
+});
+
+describe("blind spot", () => {
+  it("names the category the word actually came from", () => {
+    for (const category of ["animals", "food", "sports"]) {
+      const round = createRound(config({ mode: "blindspot", categories: [category] }), {
+        rng: seededRng(9),
+      });
+      const assignment = round.assignments.find((a) => a.isImposter)!;
+      const meta = CATEGORY_META.find((entry) => entry.id === category)!;
+      expect(round.category).toBe(category);
+      expect(assignment.categoryLabel).toBe(meta.label);
+    }
   });
 });

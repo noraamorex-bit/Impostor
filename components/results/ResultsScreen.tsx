@@ -10,6 +10,8 @@ import VoteTally from "./VoteTally";
 import { useGame } from "@/lib/game/GameProvider";
 import { avatarGradient, initials, listNames } from "@/lib/game/helpers";
 import { getMode } from "@/lib/game/modes";
+import { maskWord } from "@/lib/game/engine";
+import { CATEGORY_META } from "@/lib/words";
 import type { Outcome } from "@/types";
 import WordDisplay from "@/components/ui/WordDisplay";
 
@@ -79,6 +81,8 @@ export default function ResultsScreen() {
   const plural = imposters.length > 1;
   const outcome = outcomeCopy(result.outcome, result.caughtImposterIds.length, imposters.length);
   const accent = OUTCOME_ACCENT[result.outcome];
+  const categoryLabel =
+    CATEGORY_META.find((entry) => entry.id === round.category)?.label ?? round.category;
 
   return (
     <Screen screenKey="results">
@@ -212,9 +216,29 @@ export default function ResultsScreen() {
                             </p>
                           ) : null}
 
-                          {round.mode === "knowing" ? (
+                          {round.mode === "blindspot" ? (
+                            <p className="mt-4 text-[0.85rem] leading-relaxed text-ink-300">
+                              <span className="text-ink-400">
+                                {plural ? "They were" : "They were"} only told the category:{" "}
+                              </span>
+                              {categoryLabel}
+                            </p>
+                          ) : null}
+
+                          {round.mode === "cipher" ? (
+                            <p className="mt-4 text-[0.85rem] leading-relaxed text-ink-300">
+                              <span className="text-ink-400">
+                                {plural ? "They saw" : "They saw"}:{" "}
+                              </span>
+                              <span className="font-display font-bold tracking-[0.12em] text-violet-soft">
+                                {maskWord(round.secretWord)}
+                              </span>
+                            </p>
+                          ) : null}
+
+                          {round.mode === "accomplices" ? (
                             <p className="mt-4 text-[0.85rem] text-ink-400">
-                              {plural ? "The imposters" : "The imposter"} knew the word all along.
+                              They knew each other the whole time.
                             </p>
                           ) : null}
                         </div>
