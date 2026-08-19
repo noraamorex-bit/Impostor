@@ -5,7 +5,7 @@
 **One phone. One secret. Someone doesn't belong.**
 
 A mobile-first, pass-the-phone party game for 3–12 players.
-No accounts, no server, no internet — just a phone and a table full of suspects.
+No accounts, no server, no gameplay API — just a phone and a table full of suspects.
 
 </div>
 
@@ -57,6 +57,7 @@ fifth mode means adding one entry and one branch.
 - **Accessible**: semantic buttons, keyboard support, visible focus rings, 44px+ touch targets and
   full `prefers-reduced-motion` support
 - **Private by design**: no accounts, no backend, no analytics. Round secrets never touch storage.
+- **Installable**: ships a web manifest, so "Add to Home Screen" gives you a full-screen game
 
 ## Tech stack
 
@@ -124,6 +125,13 @@ The rule the codebase follows: **`lib/game` never imports React**, and component
 compute game logic. Everything about picking words, choosing imposters, tallying votes and
 deciding the winner lives in `lib/game/engine.ts` and `lib/game/reducer.ts`, which is what the
 tests exercise.
+
+## What is *not* persisted
+
+A round in progress is deliberately **not** recoverable across a reload: restoring it would mean
+writing the word and the imposters to disk, where a curious player could read them. Reloading
+mid-round drops you back at the home screen with your setup (and names, if you asked for them)
+intact, and the browser warns you before it happens.
 
 ## Privacy
 

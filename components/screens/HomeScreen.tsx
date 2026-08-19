@@ -99,7 +99,7 @@ export default function HomeScreen() {
       </div>
 
       <motion.p {...fadeUp(0.36)} className="pb-1 text-center text-[0.7rem] text-ink-500">
-        3–12 players · no accounts · works offline
+        3–12 players · no accounts · nothing to install
       </motion.p>
     </Screen>
   );
