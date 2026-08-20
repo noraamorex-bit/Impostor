@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Sora, Manrope } from "next/font/google";
 import "./globals.css";
 import AmbientBackground from "@/components/ui/AmbientBackground";
+import ServiceWorker from "@/components/ServiceWorker";
 
 const display = Sora({
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AmbientBackground />
         <div className="noise" aria-hidden="true" />
         {children}
+        <ServiceWorker />
       </body>
     </html>
   );

@@ -43,14 +43,12 @@ const clothing: WordSeed[] = [
   ["Apron", "Protects your clothes while cooking"],
   ["Helmet", "Protects the most important part"],
   ["Slippers", "Only for indoors and very soft"],
-  ["Hoodie String", "Always ends up uneven"],
   ["Zipper", "Goes up and sometimes gets stuck"],
   ["Button", "Falls off at the worst time"],
   ["Pocket", "Where everything gets lost"],
   ["Laundry", "The pile that never ends"],
   ["Wardrobe", "Full of clothes and nothing to wear"],
   ["Costume", "Worn once at a party"],
-  ["Winter Coat", "Heavy, puffy, and worth it"],
 ];
 
 export default clothing;

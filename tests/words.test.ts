@@ -32,6 +32,21 @@ describe("word database", () => {
     expect(offenders.map((o) => `${o.word} → ${o.clue}`)).toEqual([]);
   });
 
+  it("is overwhelmingly single words, and never longer than three", () => {
+    const single = ALL_WORDS.filter((entry) => !entry.word.includes(" "));
+    // Compounds survive only when they name one inseparable thing people say as
+    // a unit — "Ice Cream", "Hot Dog", "Traffic Light".
+    expect(single.length / ALL_WORDS.length).toBeGreaterThan(0.8);
+    const tooLong = ALL_WORDS.filter((entry) => entry.word.split(" ").length > 3);
+    expect(tooLong.map((entry) => entry.word)).toEqual([]);
+  });
+
+  it("keeps every category big enough that rounds do not repeat", () => {
+    // The round history holds 40 words; a category far below that repeats fast.
+    const thin = CATEGORY_META.filter((category) => category.count < 20);
+    expect(thin.map((category) => `${category.label}: ${category.count}`)).toEqual([]);
+  });
+
   it("exposes meta for every category with a non-empty pool", () => {
     expect(CATEGORY_META.length).toBe(CATEGORIES.length);
     expect(CATEGORY_META.every((meta) => meta.count > 0)).toBe(true);
@@ -69,6 +84,13 @@ describe("word pairs", () => {
       expect(seen.has(key), `duplicate pair: ${pair.primary} / ${pair.secondary}`).toBe(false);
       seen.add(key);
     }
+  });
+
+  it("holds pairs to the same plain-word standard as the word list", () => {
+    const sides = WORD_PAIRS.flatMap((pair) => [pair.primary, pair.secondary]);
+    const single = sides.filter((side) => !side.includes(" "));
+    expect(single.length / sides.length).toBeGreaterThan(0.8);
+    expect(sides.filter((side) => side.split(" ").length > 3)).toEqual([]);
   });
 
   it("tags every pair with a known category and difficulty", () => {

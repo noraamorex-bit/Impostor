@@ -37,7 +37,6 @@ const fruitsVeg: WordSeed[] = [
   ["Spinach", "Green leaves that shrink when cooked"],
   ["Lettuce", "Crunchy leaves in every sandwich"],
   ["Cucumber", "Long, green, mostly water"],
-  ["Pepper", "Comes in red, yellow, and green"],
   ["Mushroom", "Grows in the dark, has a cap"],
   ["Peas", "Tiny green spheres in a pod"],
   ["Corn", "Yellow kernels on a cob"],

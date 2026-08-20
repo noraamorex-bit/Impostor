@@ -5,7 +5,7 @@
 **One phone. One secret. Someone doesn't belong.**
 
 A mobile-first, pass-the-phone party game for 3–12 players.
-No accounts, no server, no gameplay API — just a phone and a table full of suspects.
+No accounts, no server, no gameplay API. Works offline. Just a phone and a table full of suspects.
 
 </div>
 
@@ -45,8 +45,10 @@ later version fall back to Classic rather than breaking a stored setup.
 ## Features
 
 - **Six game modes**, from pure-bluff Classic to two-imposter Accomplices
-- **1,500+ hand-written words** across 34 categories, every one with a clue for "With a Clue" mode
-- **700+ curated related pairs** for Unknown Imposter mode, tagged by category and difficulty
+- **1,250+ hand-written words** across 31 categories, every one with a clue for "With a Clue" mode.
+  Plain, everyday nouns — 86% are a single word, and the compounds that survive are things people
+  say as one unit ("Ice Cream", "Traffic Light")
+- **570+ curated related pairs** for Unknown Imposter mode, tagged by category and difficulty
 - **3–12 players** with fully editable names (blank names fall back to `Player N`)
 - **Configurable imposter count**, clamped so imposters can never overwhelm the table
 - **Category selection** — all categories, or any combination of them
@@ -68,7 +70,9 @@ later version fall back to Classic rather than breaking a stored setup.
 - **Accessible**: semantic buttons, keyboard support, visible focus rings, 44px+ touch targets,
   full `prefers-reduced-motion` support, and independent toggles for sound, haptics and wake lock
 - **Private by design**: no accounts, no backend, no analytics. Round secrets never touch storage.
-- **Installable**: ships a web manifest, so "Add to Home Screen" gives you a full-screen game
+- **Installable and genuinely offline**: a web manifest for "Add to Home Screen", and a service
+  worker that caches the shell and its assets — after one visit the game runs with the network
+  switched off, which is what a basement, a train or a pub wifi actually needs
 
 ## Tech stack
 
@@ -185,7 +189,7 @@ intact, and the browser warns you before it happens.
 npm test
 ```
 
-71 tests covering every game mode, 3- and 12-player games, multiple imposters, name handling,
+74 tests covering every game mode, 3- and 12-player games, multiple imposters, name handling,
 category filtering, clue and related-word assignment, vote tallying, all three outcomes, the
 complete phase flow, replay, and the guarantee that a word is never repeated while it is still
 in the history.

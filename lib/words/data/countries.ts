@@ -44,7 +44,7 @@ const countries: WordSeed[] = [
   ["Australia", "A continent that is also a country, full of odd animals"],
   ["New Zealand", "Two islands, sheep, and famous film scenery"],
   ["Canada", "Cold, polite, and covered in maple trees"],
-  ["United States", "Fifty of them under one flag"],
+  ["America", "Stars, stripes, and fifty of them"],
   ["Mexico", "Tacos, mariachi, and ancient pyramids"],
   ["Brazil", "Carnival, football, and a huge rainforest"],
   ["Argentina", "Steak, tango, and football legends"],
