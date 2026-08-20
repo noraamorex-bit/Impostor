@@ -25,14 +25,11 @@ import hobbies from "./data/hobbies";
 import entertainment from "./data/entertainment";
 import moviesTv from "./data/movies-tv";
 import games from "./data/games";
-import travel from "./data/travel";
 import buildings from "./data/buildings";
 import festivals from "./data/festivals";
 import outdoors from "./data/outdoors";
-import indoors from "./data/indoors";
 import music from "./data/music";
 import bodyHealth from "./data/body-health";
-import shopping from "./data/shopping";
 import space from "./data/space";
 
 interface CategorySource {
@@ -61,7 +58,7 @@ const SOURCES: CategorySource[] = [
   { id: "school", label: "School", emoji: "📚", seeds: school },
   { id: "technology", label: "Technology", emoji: "💻", seeds: technology },
   { id: "electronics", label: "Electronics", emoji: "🔌", seeds: electronics },
-  { id: "transportation", label: "Transport", emoji: "🚗", seeds: transportation },
+  { id: "transportation", label: "Travel", emoji: "✈️", seeds: transportation },
   { id: "jobs", label: "Jobs", emoji: "👩‍🔧", seeds: jobs },
   { id: "clothing", label: "Clothing", emoji: "👕", seeds: clothing },
   { id: "household", label: "Household", emoji: "🛋️", seeds: household },
@@ -72,14 +69,11 @@ const SOURCES: CategorySource[] = [
   { id: "entertainment", label: "Nights Out", emoji: "🎪", seeds: entertainment },
   { id: "movies-tv", label: "Movies & TV", emoji: "🎬", seeds: moviesTv },
   { id: "games", label: "Games", emoji: "🎲", seeds: games },
-  { id: "travel", label: "Travel", emoji: "✈️", seeds: travel },
   { id: "buildings", label: "Buildings", emoji: "🏛️", seeds: buildings },
   { id: "festivals", label: "Festivals", emoji: "🎉", seeds: festivals },
   { id: "outdoors", label: "Outdoors", emoji: "🌳", seeds: outdoors },
-  { id: "indoors", label: "Indoors", emoji: "🚪", seeds: indoors },
   { id: "music", label: "Music", emoji: "🎵", seeds: music },
   { id: "body-health", label: "Health", emoji: "❤️", seeds: bodyHealth },
-  { id: "shopping", label: "Shopping", emoji: "🛒", seeds: shopping },
   { id: "space", label: "Space", emoji: "🚀", seeds: space },
 ];
 

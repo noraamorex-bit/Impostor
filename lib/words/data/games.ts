@@ -21,7 +21,6 @@ const games: WordSeed[] = [
   ["Puzzle", "Corners first, then the edges"],
   ["Crossword", "Clues, boxes, and a pencil"],
   ["Sudoku", "Numbers one to nine, no repeats"],
-  ["Word Search", "Circling letters in a grid"],
   ["Charades", "Acting without a single word"],
   ["Truth or Dare", "One is always more dangerous"],
   ["Musical Chairs", "One fewer seat every round"],
@@ -30,17 +29,13 @@ const games: WordSeed[] = [
   ["Skipping Rope", "Turning, jumping, and counting"],
   ["Marbles", "Small glass spheres and a flick"],
   ["Yo-Yo", "Down, up, and along the string"],
-  ["Kite Flying", "Running until it catches the wind"],
+  ["Kite", "Running until it catches the wind"],
   ["Frisbee", "Thrown flat across the park"],
-  ["Water Balloon Fight", "Nobody stays dry"],
   ["Treasure Hunt", "Clues leading to the next clue"],
   ["Escape Room", "Sixty minutes and a locked door"],
   ["Laser Tag", "Dark room, vests, and running"],
   ["Paintball", "Bruises you'll show off later"],
   ["Mini Golf", "Windmills and impossible angles"],
-  ["Bowling Strike", "All ten down at once"],
-  ["Video Game Boss", "The hard bit at the end of the level"],
-  ["High Score", "Your initials at the top of the list"],
 ];
 
 export default games;

@@ -1,7 +1,6 @@
 import type { WordSeed } from "@/types";
 
 const space: WordSeed[] = [
-  ["Astronaut", "Floats around at work"],
   ["Rocket", "Enormous fuel tank pointing straight up"],
   ["Space Station", "A home orbiting far above"],
   ["Satellite", "Circles overhead sending signals"],
@@ -11,8 +10,6 @@ const space: WordSeed[] = [
   ["Mars", "Red, dusty, and much visited by robots"],
   ["Jupiter", "The biggest one with a huge storm"],
   ["Saturn", "Famous for its rings"],
-  ["Sun", "The star everything here revolves around"],
-  ["Moon", "Grey, cratered, and walked on once"],
   ["Comet", "Bright with a long tail"],
   ["Meteor", "A streak across the night sky"],
   ["Asteroid", "A lump of rock drifting between planets"],
@@ -20,17 +17,17 @@ const space: WordSeed[] = [
   ["Black Hole", "Nothing escapes it, not even light"],
   ["Solar System", "One star and everything around it"],
   ["Space Suit", "White, bulky, and keeps you alive"],
-  ["Space Walk", "Working outside with a tether"],
-  ["Launch Pad", "Where the countdown happens"],
-  ["Countdown", "Three, two, one, and ignition"],
-  ["Zero Gravity", "Everything floats, including you"],
+  ["Spacewalk", "Working outside with a tether"],
   ["Alien", "The imagined neighbour we haven't met"],
   ["UFO", "A light in the sky nobody can explain"],
-  ["Mission Control", "Rows of screens and headsets"],
-  ["Space Rover", "Drives slowly on another world"],
-  ["Orbit", "Going round and round without falling"],
-  ["Star Map", "Joining the dots in the night sky"],
+  ["Rover", "Drives slowly on another world"],
   ["Northern Lights", "Green curtains across a polar sky"],
+  ["Spaceship", "It carries people between the stars"],
+  ["Crater", "A round dent left by something that hit hard"],
+  ["Gravity", "The reason everything falls down"],
+  ["Constellation", "Joining the dots in the night sky"],
+  ["Eclipse", "One thing slides in front of another and it goes dark"],
+  ["Venus", "The second one out, and the hottest"],
 ];
 
 export default space;
